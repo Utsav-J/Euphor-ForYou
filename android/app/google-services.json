@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "233370671048",
+    "project_id": "euphor-for-you",
+    "storage_bucket": "euphor-for-you.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:233370671048:android:abeb2c1de4d654a82092fd",
+        "android_client_info": {
+          "package_name": "com.example.euphor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANrkZG6v0kK69eepg0UoRQOg5fhACknD4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
