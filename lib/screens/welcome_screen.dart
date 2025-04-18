@@ -1,8 +1,10 @@
 import 'dart:ui';
 import 'package:euphor/core/routes/fade_route.dart';
 import 'package:euphor/core/theme/app_theme.dart';
-import 'package:euphor/reusables/filled_concentric_circle_painter.dart';
+import 'package:euphor/widgets/filled_concentric_circle_painter.dart';
 import 'package:euphor/widgets/auth_wrapper.dart';
+import 'package:euphor/widgets/glassmorphic_sign_in_button.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -83,137 +85,79 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 ),
               ),
             ),
-            Center(
+            Positioned(
+              // width: 390,
+              // bottom: 80,
+              // left: 10,
+              width: MediaQuery.of(context).size.width * 0.9,
+              bottom: MediaQuery.of(context).size.height * 0.08,
+              left: MediaQuery.of(context).size.width * 0.05,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    onPressed: authProvider.isLoading
-                        ? null
-                        : () async {
-                            try {
-                              await authProvider
-                                  .signInWithGoogleAccountPicker(context);
-                              // Navigate to AuthWrapper if sign in successful
-                              if (authProvider.isAuthenticated && mounted) {
-                                Navigator.pushReplacement(context,
-                                    FadeRoute(page: const AuthWrapper())
-                                    // MaterialPageRoute(
-                                    //   builder: (context) => const AuthWrapper(),
-                                    // ),
-                                    );
-                              }
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content:
-                                      Text('Error signing in: ${e.toString()}'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
+                  GlassmorphicSignInButton(
+                    authProvider: authProvider,
+                    text: "Sign in with Google",
+                    isLoading: authProvider.isLoading,
+                    leading: Image.network(
+                      'https://www.google.com/favicon.ico',
+                      height: 24,
+                      width: 24,
                     ),
-                    child: authProvider.isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(),
-                          )
-                        : Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Image.network(
-                                'https://www.google.com/favicon.ico',
-                                height: 24,
-                                width: 24,
-                              ),
-                              const SizedBox(width: 12),
-                              const Text(
-                                'Sign in with Google',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
+                    onPressed: () async {
+                      try {
+                        await authProvider
+                            .signInWithGoogleAccountPicker(context);
+                        if (authProvider.isAuthenticated && context.mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            FadeRoute(page: const AuthWrapper()),
+                          );
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error signing in: ${e.toString()}'),
+                            backgroundColor: Colors.red,
                           ),
+                        );
+                      }
+                    },
+                  ),
+                  const SizedBox(
+                    height: 16,
                   ),
                   if (hasPrevUser)
-                    ElevatedButton(
-                      onPressed: authProvider.isLoading
-                          ? null
-                          : () async {
-                              try {
-                                await authProvider
-                                    .signInSilentlyWithLastUsedAccount(
-                                        context, _previousUser);
-                                // Navigate to AuthWrapper if sign in successful
-                                if (authProvider.isAuthenticated && mounted) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const AuthWrapper(),
-                                    ),
-                                  );
-                                }
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        'Error signing in: ${e.toString()}'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black87,
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
+                    GlassmorphicSignInButton(
+                      authProvider: authProvider,
+                      text: 'Continue with ${_previousUser!.displayName}',
+                      leading: const Icon(
+                        CupertinoIcons.person_alt_circle_fill,
+                        color: AppTheme.accentColor,
+                        size: 26,
                       ),
-                      child: authProvider.isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(),
-                            )
-                          : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Image.network(
-                                  'https://www.google.com/favicon.ico',
-                                  height: 24,
-                                  width: 24,
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  'Sign in with ${_previousUser!.email}',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
+                      isLoading: authProvider.isLoading,
+                      onPressed: () async {
+                        try {
+                          await authProvider.signInSilentlyWithLastUsedAccount(
+                              context, _previousUser);
+                          if (authProvider.isAuthenticated && context.mounted) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const AuthWrapper()),
+                            );
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content:
+                                  Text('Error signing in: ${e.toString()}'),
+                              backgroundColor: Colors.red,
                             ),
+                          );
+                        }
+                      },
                     )
                 ],
               ),
