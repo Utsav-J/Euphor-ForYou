@@ -5,11 +5,10 @@ import '../services/user_preferences_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  // final GoogleSignIn _googleSignIn = GoogleSignIn();
   User? _user;
   bool _isLoading = true; // Start with loading true
   String? _error;
+  // ignore: unused_field
   bool _initialized = false;
 
   AuthProvider() {

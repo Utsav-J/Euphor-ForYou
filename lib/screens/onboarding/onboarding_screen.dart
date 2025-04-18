@@ -1,6 +1,6 @@
 import 'package:euphor/core/theme/app_theme.dart';
 import 'package:euphor/providers/auth_provider.dart';
-import 'package:euphor/reusables/onboarding_page.dart';
+import 'package:euphor/widgets/onboarding_page.dart';
 import 'package:euphor/services/onboarding_service.dart';
 import 'package:euphor/widgets/auth_wrapper.dart';
 import 'package:flutter/material.dart';
