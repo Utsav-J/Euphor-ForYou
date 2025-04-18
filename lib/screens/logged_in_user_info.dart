@@ -1,3 +1,4 @@
+import 'package:euphor/core/routes/fade_route.dart';
 import 'package:euphor/widgets/bottom_nav_bar.dart';
 import 'package:euphor/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
@@ -27,9 +28,10 @@ class LoggedInUserInfo extends StatelessWidget {
               await FirebaseAuth.instance.signOut();
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const WelcomeScreen(),
-                ),
+                FadeRoute(page: const WelcomeScreen()),
+                // MaterialPageRoute(
+                //   builder: (context) => const WelcomeScreen(),
+                // ),
                 (route) => false,
               );
             },

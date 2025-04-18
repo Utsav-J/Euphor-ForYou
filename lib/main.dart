@@ -3,8 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
-import 'screens/onboarding/onboarding_screen.dart';
-import 'services/onboarding_service.dart';
 import 'widgets/auth_wrapper.dart';
 
 void main() async {
@@ -34,7 +32,6 @@ class MyApp extends StatelessWidget {
       ),
       home: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
-          // Show loading screen while auth is initializing
           if (authProvider.isLoading) {
             return const Scaffold(
               body: Center(
@@ -43,31 +40,7 @@ class MyApp extends StatelessWidget {
             );
           }
 
-          // If user is authenticated, go directly to AuthWrapper
-          if (authProvider.isAuthenticated) {
-            return const AuthWrapper();
-          }
-
-          // If not authenticated, check onboarding
-          return FutureBuilder<bool>(
-            future: OnboardingService().hasSeenOnboarding(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-
-              final hasSeenOnboarding = snapshot.data ?? false;
-              if (!hasSeenOnboarding) {
-                return const OnboardingScreen();
-              }
-
-              return const AuthWrapper();
-            },
-          );
+          return const AuthWrapper();
         },
       ),
     );

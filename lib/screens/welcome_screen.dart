@@ -1,7 +1,9 @@
+import 'dart:ui';
+import 'package:euphor/core/routes/fade_route.dart';
 import 'package:euphor/core/theme/app_theme.dart';
+import 'package:euphor/reusables/filled_concentric_circle_painter.dart';
 import 'package:euphor/widgets/auth_wrapper.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
@@ -13,17 +15,34 @@ class WelcomeScreen extends StatefulWidget {
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with SingleTickerProviderStateMixin {
   GoogleSignInAccount? _previousUser;
-
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  final List<Color> circleShades = [
+    const Color(0xFF5f7e52), // darkest outer
+    const Color(0xFF718e61),
+    const Color(0xFF819d6f),
+    const Color(0xFF91ab7d),
+    const Color(0xFFa2bf8e), // lightest center
+  ];
   @override
   void initState() {
     super.initState();
     _loadPreviousGoogleUser();
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 10),
+      vsync: this,
+    )..repeat();
+
+    _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
   }
 
   @override
   void dispose() {
+    _controller.dispose();
     super.dispose();
   }
 
@@ -43,38 +62,31 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
         backgroundColor: AppTheme.backgroundColor,
         body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Stack(children: [
+            AnimatedBuilder(
+              animation: _animation,
+              builder: (context, child) {
+                return CustomPaint(
+                  painter: FilledConcentricCirclePainter(
+                    progress: _animation.value,
+                    shades: circleShades,
+                  ),
+                  child: Container(),
+                );
+              },
+            ),
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+                child: Container(
+                  color: Colors.transparent, // required to trigger the blur
+                ),
+              ),
+            ),
+            Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Welcome to',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Euphor',
-                    style: GoogleFonts.poppins(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Sign in to continue',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 48),
                   ElevatedButton(
                     onPressed: authProvider.isLoading
                         ? null
@@ -84,12 +96,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   .signInWithGoogleAccountPicker(context);
                               // Navigate to AuthWrapper if sign in successful
                               if (authProvider.isAuthenticated && mounted) {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AuthWrapper(),
-                                  ),
-                                );
+                                Navigator.pushReplacement(context,
+                                    FadeRoute(page: const AuthWrapper())
+                                    // MaterialPageRoute(
+                                    //   builder: (context) => const AuthWrapper(),
+                                    // ),
+                                    );
                               }
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -206,7 +218,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ],
               ),
             ),
-          ),
+          ]),
           // Updated Google Sign In Button
         ));
   }
