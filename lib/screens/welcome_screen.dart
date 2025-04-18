@@ -1,5 +1,5 @@
 import 'package:euphor/core/theme/app_theme.dart';
-import 'package:euphor/screens/logged_in_user_info.dart';
+import 'package:euphor/widgets/auth_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -82,13 +82,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             try {
                               await authProvider
                                   .signInWithGoogleAccountPicker(context);
-                              // Navigate to home screen if sign in successful
+                              // Navigate to AuthWrapper if sign in successful
                               if (authProvider.isAuthenticated && mounted) {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        const LoggedInUserInfo(),
+                                    builder: (context) => const AuthWrapper(),
                                   ),
                                 );
                               }
@@ -148,13 +147,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 await authProvider
                                     .signInSilentlyWithLastUsedAccount(
                                         context, _previousUser);
-                                // Navigate to home screen if sign in successful
+                                // Navigate to AuthWrapper if sign in successful
                                 if (authProvider.isAuthenticated && mounted) {
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          const LoggedInUserInfo(),
+                                      builder: (context) => const AuthWrapper(),
                                     ),
                                   );
                                 }

@@ -1,3 +1,4 @@
+import 'package:euphor/reusables/bottom_nav_bar.dart';
 import 'package:euphor/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,6 +17,7 @@ class LoggedInUserInfo extends StatelessWidget {
     }
 
     return Scaffold(
+      bottomNavigationBar: const BottomNavBar(),
       appBar: AppBar(
         title: const Text('Logged In User Info'),
         actions: [

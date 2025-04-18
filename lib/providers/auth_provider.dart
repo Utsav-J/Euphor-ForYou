@@ -1,18 +1,67 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../services/user_preferences_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   // final GoogleSignIn _googleSignIn = GoogleSignIn();
   User? _user;
-  bool _isLoading = false;
+  bool _isLoading = true; // Start with loading true
   String? _error;
+  bool _initialized = false;
 
   AuthProvider() {
-    _auth.authStateChanges().listen((User? user) {
+    _initializeAuth();
+  }
+
+  Future<void> _initializeAuth() async {
+    try {
+      // Check if user is already logged in
+      _user = _auth.currentUser;
+
+      // If no current user, try to restore from SharedPreferences
+      if (_user == null) {
+        final isLoggedIn = await UserPreferencesService.isUserLoggedIn();
+        if (isLoggedIn) {
+          // Try to sign in silently with Google
+          final googleSignIn = GoogleSignIn();
+          final googleUser = await googleSignIn.signInSilently();
+
+          if (googleUser != null) {
+            final googleAuth = await googleUser.authentication;
+            final credential = GoogleAuthProvider.credential(
+              accessToken: googleAuth.accessToken,
+              idToken: googleAuth.idToken,
+            );
+            await _auth.signInWithCredential(credential);
+            _user = _auth.currentUser;
+          } else {
+            // If silent sign-in fails, clear the stored data
+            await UserPreferencesService.clearUserData();
+          }
+        }
+      } else {
+        // If we have a current user, save their data
+        await UserPreferencesService.saveUserData(_user!);
+      }
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      _initialized = true;
+      notifyListeners();
+    }
+
+    // Listen to auth state changes
+    _auth.authStateChanges().listen((User? user) async {
       _user = user;
+      if (user != null) {
+        await UserPreferencesService.saveUserData(user);
+      } else {
+        await UserPreferencesService.clearUserData();
+      }
       notifyListeners();
     });
   }
@@ -30,7 +79,7 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
 
       final googleSignIn = GoogleSignIn();
-      await googleSignIn.signOut(); // Force picker
+      await googleSignIn.signOut();
       final googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) return;
@@ -85,7 +134,10 @@ class AuthProvider extends ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      await Future.wait([_auth.signOut()]);
+      await Future.wait([
+        _auth.signOut(),
+        UserPreferencesService.clearUserData(),
+      ]);
     } catch (e) {
       _error = e.toString();
     } finally {

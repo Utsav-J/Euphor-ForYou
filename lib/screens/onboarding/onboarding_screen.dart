@@ -1,6 +1,10 @@
 import 'package:euphor/core/theme/app_theme.dart';
+import 'package:euphor/providers/auth_provider.dart';
 import 'package:euphor/reusables/onboarding_page.dart';
+import 'package:euphor/services/onboarding_service.dart';
+import 'package:euphor/widgets/auth_wrapper.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../welcome_screen.dart';
 
@@ -13,7 +17,6 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
-  // ignore: unused_field
   bool _isLastPage = false;
 
   @override
@@ -22,19 +25,39 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
+  void _completeOnboarding() async {
+    await OnboardingService().completeOnboarding();
+    if (mounted) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      if (authProvider.isAuthenticated) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AuthWrapper()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: AppTheme.backgroundColor,
-        actions: [
-          TextButton(
-            onPressed: () => _pageController.jumpToPage(2),
-            child: const Text('Skip'),
-          ),
-        ],
-      ),
+      appBar: _isLastPage
+          ? null
+          : AppBar(
+              elevation: 0,
+              backgroundColor: AppTheme.backgroundColor,
+              actions: [
+                TextButton(
+                  onPressed: _completeOnboarding,
+                  child: const Text('Skip'),
+                ),
+              ],
+            ),
       body: Stack(
         children: [
           // PageView with onboarding screens
@@ -45,20 +68,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 _isLastPage = index == 2;
               });
             },
-            children: const [
-              OnboardingPage(
+            children: [
+              const OnboardingPage(
                 title: 'Text 1',
                 description:
                     'Welcome to our app! Here you can add more details about the first feature or benefit.',
                 image: Icons.star, // Replace with your image
               ),
-              OnboardingPage(
+              const OnboardingPage(
                 title: 'Text 2',
                 description:
                     'This is the second feature or benefit of your app. Make it compelling!',
                 image: Icons.favorite, // Replace with your image
               ),
-              WelcomeScreen(),
+              Consumer<AuthProvider>(
+                builder: (context, authProvider, _) {
+                  if (authProvider.isAuthenticated) {
+                    // If user is already authenticated, complete onboarding and go to AuthWrapper
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _completeOnboarding();
+                    });
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return const WelcomeScreen();
+                },
+              ),
             ],
           ),
 
@@ -69,6 +103,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 // Skip button
+                TextButton(
+                  onPressed: _completeOnboarding,
+                  child: const Text('Skip'),
+                ),
 
                 // Page indicator
                 SmoothPageIndicator(
@@ -82,6 +120,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
 
                 // Next/Done button
+                TextButton(
+                  onPressed: () {
+                    if (_isLastPage) {
+                      _completeOnboarding();
+                    } else {
+                      _pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    }
+                  },
+                  child: Text(_isLastPage ? 'Done' : 'Next'),
+                ),
               ],
             ),
           ),
