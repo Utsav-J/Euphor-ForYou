@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:euphor/core/routes/fade_route.dart';
 import 'package:euphor/core/theme/app_theme.dart';
+import 'package:euphor/widgets/animated_text_stack.dart';
 import 'package:euphor/widgets/filled_concentric_circle_painter.dart';
 import 'package:euphor/widgets/auth_wrapper.dart';
 import 'package:euphor/widgets/glassmorphic_sign_in_button.dart';
@@ -83,6 +84,41 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 child: Container(
                   color: Colors.transparent, // required to trigger the blur
                 ),
+              ),
+            ),
+            const Center(
+              child: SizedBox(
+                height: 300,
+                child: AnimatedTextStack(),
+                // child: Stack(children: [
+                //   Lottie.asset(
+                //     "assets/lottie/roses.json",
+                //     reverse: true,
+                //   ),
+                //   Positioned(
+                //     bottom: 110,
+                //     left: 60,
+                //     child: Text(
+                //       'euphor',
+                //       textAlign: TextAlign.center,
+                //       style: GoogleFonts.sourceSerif4(
+                //         textStyle: const TextStyle(
+                //           color: AppTheme.accentColor,
+                //           fontSize: 64,
+                //           fontWeight: FontWeight.bold,
+                //           fontFamily: 'SourceSerif4',
+                //         ),
+                //         shadows: [
+                //           const Shadow(
+                //             offset: Offset(2, 10),
+                //             blurRadius: 100.0,
+                //             color: Color.fromARGB(173, 17, 89, 82),
+                //           ),
+                //         ],
+                //       ),
+                //     ),
+                //   ),
+                // ]),
               ),
             ),
             Positioned(

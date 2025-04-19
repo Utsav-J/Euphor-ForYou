@@ -24,6 +24,7 @@ dependencies:
   smooth_page_indicator: ^1.2.1
   rive: ^0.13.20
   lottie: ^3.2.0
+  animated_text_kit: ^4.2.3
 
 dev_dependencies:
   flutter_test:
