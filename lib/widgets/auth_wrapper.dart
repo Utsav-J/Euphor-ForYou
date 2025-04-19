@@ -1,6 +1,6 @@
 import 'package:euphor/core/routes/fade_route.dart';
 import 'package:euphor/providers/auth_provider.dart';
-import 'package:euphor/screens/logged_in_user_info.dart';
+import 'package:euphor/screens/main_screen.dart';
 import 'package:euphor/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,9 +37,6 @@ class AuthWrapper extends StatelessWidget {
                       Navigator.pushReplacement(
                         context,
                         FadeRoute(page: const WelcomeScreen()),
-                        // MaterialPageRoute(
-                        //   builder: (context) => const WelcomeScreen(),
-                        // ),
                       );
                     },
                     child: const Text('Try Again'),
@@ -54,7 +51,7 @@ class AuthWrapper extends StatelessWidget {
           return const WelcomeScreen();
         }
 
-        return const LoggedInUserInfo();
+        return const MainScreen();
       },
     );
   }

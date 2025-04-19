@@ -3,8 +3,8 @@ import 'package:euphor/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class LoggedInUserInfo extends StatelessWidget {
-  const LoggedInUserInfo({super.key});
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +17,8 @@ class LoggedInUserInfo extends StatelessWidget {
     }
 
     return Scaffold(
-      // bottomNavigationBar: const BottomNavBar(),
       appBar: AppBar(
-        title: const Text('Logged In User Info'),
+        title: const Text('Profile'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -28,9 +27,6 @@ class LoggedInUserInfo extends StatelessWidget {
               Navigator.pushAndRemoveUntil(
                 context,
                 FadeRoute(page: const WelcomeScreen()),
-                // MaterialPageRoute(
-                //   builder: (context) => const WelcomeScreen(),
-                // ),
                 (route) => false,
               );
             },

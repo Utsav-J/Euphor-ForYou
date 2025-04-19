@@ -4,7 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 
 class BottomNavBar extends StatefulWidget {
-  const BottomNavBar({super.key});
+  final int selectedIndex;
+  final Function(int) onItemTapped;
+
+  const BottomNavBar({
+    super.key,
+    this.selectedIndex = 0,
+    required this.onItemTapped,
+  });
 
   @override
   State<BottomNavBar> createState() => _BottomNavBarState();
@@ -13,7 +20,7 @@ class BottomNavBar extends StatefulWidget {
 class _BottomNavBarState extends State<BottomNavBar> {
   List<SMIBool> riveIconInputs = [];
   List<StateMachineController?> controllers = [];
-  int selectedNavIndex = 0;
+
   void animateIcon(int index) {
     riveIconInputs[index].change(true);
     print("changed to true");
@@ -44,60 +51,60 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Container(
-        height: 65,
-        margin: const EdgeInsets.symmetric(horizontal: 75, vertical: 28),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-        decoration: const BoxDecoration(
-          color: AppTheme.primaryColor,
-          borderRadius: BorderRadius.all(Radius.circular(40)),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.secondaryColor,
-              offset: Offset(0, 20),
-              blurRadius: 25,
-            )
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(botttomNavItems.length, (index) {
-            final currItem = botttomNavItems[index].rive;
-            return GestureDetector(
-              onTap: () {
-                if (riveIconInputs.length > index) {
-                  animateIcon(index);
-                }
-                // animateIcon(index);
-                setState(() {
-                  selectedNavIndex = index;
-                });
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AnimatedBar(
-                    isActive: index == selectedNavIndex,
-                  ),
-                  SizedBox(
-                    height: 42,
-                    width: 42,
-                    child: Opacity(
-                      opacity: index == selectedNavIndex ? 1 : 0.5,
-                      child: RiveAnimation.asset(currItem.src,
-                          artboard: currItem.artBoard, onInit: (artboard) {
-                        riveOnInit(artboard,
-                            stateMachineName: currItem.stateMachineName);
-                        if (selectedNavIndex == index) {
-                          animateIcon(index);
-                        }
-                      }),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 24),
+        child: Container(
+          height: 65,
+          margin: const EdgeInsets.symmetric(horizontal: 75),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          decoration: const BoxDecoration(
+            color: AppTheme.primaryColor,
+            borderRadius: BorderRadius.all(Radius.circular(40)),
+            boxShadow: [
+              BoxShadow(
+                color: Color.fromARGB(178, 137, 161, 121),
+                offset: Offset(0, 20),
+                blurRadius: 25,
+              )
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(botttomNavItems.length, (index) {
+              final currItem = botttomNavItems[index].rive;
+              return GestureDetector(
+                onTap: () {
+                  if (riveIconInputs.length > index) {
+                    animateIcon(index);
+                  }
+                  widget.onItemTapped(index);
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedBar(
+                      isActive: index == widget.selectedIndex,
                     ),
-                  ),
-                ],
-              ),
-            );
-          }),
+                    SizedBox(
+                      height: 42,
+                      width: 42,
+                      child: Opacity(
+                        opacity: index == widget.selectedIndex ? 1 : 0.5,
+                        child: RiveAnimation.asset(currItem.src,
+                            artboard: currItem.artBoard, onInit: (artboard) {
+                          riveOnInit(artboard,
+                              stateMachineName: currItem.stateMachineName);
+                          if (widget.selectedIndex == index) {
+                            animateIcon(index);
+                          }
+                        }),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
         ),
       ),
     );
